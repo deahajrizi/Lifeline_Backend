@@ -18,11 +18,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser())
 
-
-//Routes utilisées pour les utilisateurs
-app.use("/api/user", require("./routes/userRoutes"));
 //Routes utilisées pour les postes (souvenirs)
 app.use("/api/post", require("./routes/postRoutes"));
+//Routes utilisées pour les utilisateurs
+app.use("/api/user", require("./routes/userRoutes"));
 
 //Afficher les stacks d'erreur en mode développement
 app.use(errorHandler);
