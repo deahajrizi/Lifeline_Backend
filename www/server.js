@@ -22,6 +22,8 @@ app.use(cookieParser())
 app.use("/api/post", require("./routes/postRoutes"));
 //Routes utilisées pour les utilisateurs
 app.use("/api/user", require("./routes/userRoutes"));
+//Routes utilisées pour les commentaires
+app.use("/api/comment", require("./routes/commentRoutes"));
 
 //Afficher les stacks d'erreur en mode développement
 app.use(errorHandler);
