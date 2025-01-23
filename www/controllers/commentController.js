@@ -121,11 +121,9 @@ const deleteComment = asyncHandler(async (req, res) => {
   }
 
   const removedComment = await CommentModel.findByIdAndDelete(req.params.id);
-  res
-    .status(200)
-    .json({
-      message: `Le commentaire '${removedComment.content}' a été supprimé.`,
-    });
+  res.status(200).json({
+    message: `Le commentaire '${removedComment.content}' a été supprimé.`,
+  });
 });
 
 module.exports = {

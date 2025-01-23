@@ -4,7 +4,7 @@
   "description": "Lifeline partie serveur",
   "main": "server.js",
   "scripts": {
-    "dev": "nodemon server.js"
+    "start": "nodemon server.js"
   },
   "author": "Dea Hajrizi",
   "license": "MIT",

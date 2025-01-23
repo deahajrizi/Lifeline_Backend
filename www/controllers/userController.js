@@ -30,10 +30,10 @@ const login = asyncHandler(async (req, res) => {
 // @access  Public
 const register = asyncHandler(async (req, res) => {
   //On récupère les infos du formulaire (frontend)
-  const { last_name, first_name, email, password } = req.body;
+  const { username, last_name, first_name, email, password } = req.body;
 
   //On contrôle que les infos obligatoires sont présentes et pas vides
-  if (!email || email === "" || password === "" || !password) {
+  if (!username || username === "" || last_name === "" || !last_name || first_name === "" || !first_name || !email || email === "" || password === "" || !password) {
     res.status(400);
     throw new Error("Merci de remplir les champs obligatoires.");
   }
@@ -58,8 +58,7 @@ const register = asyncHandler(async (req, res) => {
       _id: user._id,
       last_name: user.last_name,
       first_name: user.first_name,
-      email: user.email,
-      message: "Utilisateur créé avec succès"
+      email: user.email
     });
   } else {
     res.status(400);
@@ -104,6 +103,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
   if (user) {
     res.status(200).json({
       _id: user._id,
+      username: user.username,
       last_name: user.last_name,
       first_name: user.first_name,
       email: user.email,
