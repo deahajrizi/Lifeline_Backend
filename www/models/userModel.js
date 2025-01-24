@@ -6,11 +6,18 @@ const bcrypt = require('bcrypt')
 const userSchema = mongoose.Schema({
     last_name: {
         type: String,
-        trim: true //Supprime les espaces ou caractères inutiles
+        trim: true, //Supprime les espaces ou caractères inutiles
+        required: true
     },
     first_name: {
         type: String,
-        trim: true
+        trim: true,
+        required: true
+    },
+    username: {
+        type: String,
+        trim: true,
+        required: true
     },
     email: {
         type: String,

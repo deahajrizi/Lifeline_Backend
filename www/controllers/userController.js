@@ -17,7 +17,7 @@ const login = asyncHandler(async (req, res) => {
       last_name: user.last_name,
       first_name: user.first_name,
       email: user.email,
-      message: "Utilisateur connecté avec succès"
+      message: "Utilisateur connecté avec succès",
     });
   } else {
     res.status(401);
@@ -33,7 +33,18 @@ const register = asyncHandler(async (req, res) => {
   const { username, last_name, first_name, email, password } = req.body;
 
   //On contrôle que les infos obligatoires sont présentes et pas vides
-  if (!username || username === "" || last_name === "" || !last_name || first_name === "" || !first_name || !email || email === "" || password === "" || !password) {
+  if (
+    !username ||
+    username === "" ||
+    last_name === "" ||
+    !last_name ||
+    first_name === "" ||
+    !first_name ||
+    !email ||
+    email === "" ||
+    password === "" ||
+    !password
+  ) {
     res.status(400);
     throw new Error("Merci de remplir les champs obligatoires.");
   }
@@ -58,7 +69,7 @@ const register = asyncHandler(async (req, res) => {
       _id: user._id,
       last_name: user.last_name,
       first_name: user.first_name,
-      email: user.email
+      email: user.email,
     });
   } else {
     res.status(400);
@@ -90,24 +101,23 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     last_name: updatedUser.last_name,
     first_name: updatedUser.first_name,
     email: updatedUser.email,
-    message: "Utilisateur modifié avec succès"
+    message: "Utilisateur modifié avec succès",
   });
-
 });
 
 // @desc    Récupérer le profil d'un utilisateur par son ID
-// @route   POST /api/user/profile
+// @route   POST /api/user/profile/:_id
 // @access  Privé
 const getUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params._id);
   if (user) {
     res.status(200).json({
       _id: user._id,
-      username: user.username,
       last_name: user.last_name,
       first_name: user.first_name,
+      username: user.username,
       email: user.email,
-      message: "Utilisateur récupéré"
+      message: "Utilisateur récupéré",
     });
   } else {
     res.status(400);
