@@ -14,6 +14,7 @@ const login = asyncHandler(async (req, res) => {
     generateToken(res, user._id);
     res.status(201).json({
       _id: user._id,
+      username: user.username,
       last_name: user.last_name,
       first_name: user.first_name,
       email: user.email,
@@ -58,6 +59,7 @@ const register = asyncHandler(async (req, res) => {
 
   //On enregistre l'utilisateur dans la BDD
   const user = await User.create({
+    username,
     last_name,
     first_name,
     email,
@@ -67,6 +69,7 @@ const register = asyncHandler(async (req, res) => {
     generateToken(res, user._id);
     res.status(201).json({
       _id: user._id,
+      username: user.username,
       last_name: user.last_name,
       first_name: user.first_name,
       email: user.email,
@@ -87,7 +90,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("L'utilisateur n'existe pas.");
   }
-  user.last_name = req.body.last_name || user.last_name;
+  user.username = req.body.username || user.username;  user.last_name = req.body.last_name || user.last_name;
   user.first_name = req.body.first_name || user.first_name;
   user.email = req.body.email || user.email;
 
@@ -98,6 +101,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   const updatedUser = await user.save();
   res.status(201).json({
     _id: updatedUser._id,
+    username: updatedUser.username,
     last_name: updatedUser.last_name,
     first_name: updatedUser.first_name,
     email: updatedUser.email,
