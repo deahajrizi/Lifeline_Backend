@@ -8,8 +8,7 @@ const protect = asyncHandler(async (req, res, next) => {
 
   // Look for token in cookies
   token = req.cookies.jwt;
-  console.log("Cookies received:", req.cookies);
-
+  console.log({ token })
   // Check if there's a token in the cookies
   if (token) {
     try {
