@@ -11,7 +11,7 @@ const generateToken = (res, userId) => {
 		httpOnly: true,
 		secure: process.env.NODE_ENV !== 'development', //Utiliser un cookie https en mode prod
 		sameSite: 'strict', //Prévenir les attaques CSRF
-		expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), //30 hours
+        maxAge: 30 * 24 * 60 * 60 * 1000, //30 jours
 		path: '/',
 	})
 

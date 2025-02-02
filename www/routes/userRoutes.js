@@ -1,6 +1,7 @@
 const express = require('express')
 const userController = require('../controllers/userController')
 const {protect} = require('../middleware/authMiddleware')
+const upload = require('../middleware/multerConfig')
 const router = express.Router();
 
 
@@ -22,12 +23,18 @@ router.route('/logout').post(userController.logout)
 // @route   Route User (PUT)
 // @desc    Route pour mettre à jour le profil d'un utilisateur
 // @access  Privé
-router.route('/profile').put(protect, userController.updateUserProfile)
+router.route('/profile/').put(protect, userController.updateUserProfile)
 
 
 // @route   Route User (GET)
 // @desc    Route pour récupérer le profil d'un utilisateur
 // @access  Privé
 router.route('/profile/:_id').get(protect, userController.getUserProfile)
+
+
+// @route   Route User (PUT)
+// @desc    Route pour enregistrer l'avatar d'un utilisateur
+// @access  Privé
+router.route('/upload-avatar/:_id').put(protect, upload.single('avatar'), userController.uploadAvatar);
 
 module.exports = router

@@ -2,6 +2,7 @@
 const asyncHandler = require("express-async-handler");
 const User = require("../models/userModel");
 const { generateToken } = require("../utils/generateToken");
+const cloudinary = require('cloudinary').v2
 
 // @desc    Login utilisateur avec token
 // @route   POST /api/user/auth
@@ -12,7 +13,7 @@ const login = asyncHandler(async (req, res) => {
   const user = await User.findOne({ email });
   if (user && (await user.matchPassword(password))) {
     generateToken(res, user._id);
-    console.log('logging in')
+    console.log('logged in')
     res.status(201).json({
       _id: user._id,
       username: user.username,
@@ -82,18 +83,20 @@ const register = asyncHandler(async (req, res) => {
 });
 
 // @desc    Mettre à jour le profil d'un utilisateur par son ID
-// @route   PUT /api/user/profile
+// @route   PUT /api/user/profile/
 // @access  Privé
 const updateUserProfile = asyncHandler(async (req, res) => {
+  const {username, first_name, last_name, email} = req.body
   const user = await User.findById(req.user._id);
 
   if (!user) {
     res.status(400);
     throw new Error("L'utilisateur n'existe pas.");
   }
-  user.username = req.body.username || user.username;  user.last_name = req.body.last_name || user.last_name;
-  user.first_name = req.body.first_name || user.first_name;
-  user.email = req.body.email || user.email;
+  user.username = username || user.username;
+   user.last_name = last_name || user.last_name;
+  user.first_name = first_name || user.first_name;
+  user.email = email || user.email;
 
   if (req.body.password) {
     user.password = req.body.password;
@@ -110,8 +113,49 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc    Upload Avatar
+// @route   PUT /api/user/upload-avatar/:_id
+// @access  Privé
+const uploadAvatar = asyncHandler(async (req, res) => {
+
+  //Check if file was uploaded
+  if(!req.file){
+    res.status(400);
+    throw new Error("No file uploaded");
+  }
+
+  //Upload file to Cloudinary
+  const result = await cloudinary.uploader.upload(req.file.path, {
+    folder: 'avatars',
+    transformation: [
+      {width: 300, height: 300, quality: 'auto', fetch_format: 'auto' ,crop: 'fill', gravity: 'auto'}
+    ]
+  })
+
+  //Get URL of uploaded image
+  const avatarUrl = result.secure_url;
+
+  //Find the user 
+  const user = await User.findById(req.params._id);
+  if(!user){
+    res.status(404)
+    throw new Error("User not found")
+  }
+
+  //Update the user's avatar
+  user.avatar = avatarUrl;
+  await user.save()
+
+  res.status(200).json({
+    message: 'Avatar uploaded successfully',
+    avatarUrl: avatarUrl,
+    userId: user._id
+  })
+
+} )
+
 // @desc    Récupérer le profil d'un utilisateur par son ID
-// @route   POST /api/user/profile/:_id
+// @route   GET /api/user/profile/:_id
 // @access  Privé
 const getUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params._id);
@@ -148,4 +192,5 @@ module.exports = {
   register,
   getUserProfile,
   updateUserProfile,
+  uploadAvatar
 };
