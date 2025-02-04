@@ -20,6 +20,7 @@ const login = asyncHandler(async (req, res) => {
       last_name: user.last_name,
       first_name: user.first_name,
       email: user.email,
+      avatar: user.avatar,
       message: "Utilisateur connecté avec succès",
     });
   } else {
@@ -66,6 +67,7 @@ const register = asyncHandler(async (req, res) => {
     first_name,
     email,
     password,
+    avatar: req.body.avatar || undefined
   });
   if (user) {
     generateToken(res, user._id);
@@ -75,6 +77,7 @@ const register = asyncHandler(async (req, res) => {
       last_name: user.last_name,
       first_name: user.first_name,
       email: user.email,
+      avatar: user.avatar
     });
   } else {
     res.status(400);
@@ -166,6 +169,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
       first_name: user.first_name,
       username: user.username,
       email: user.email,
+      avatar: user.avatar,
       message: "Utilisateur récupéré",
     });
   } else {
