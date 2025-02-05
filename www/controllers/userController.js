@@ -127,16 +127,10 @@ const uploadAvatar = asyncHandler(async (req, res) => {
     throw new Error("No file uploaded");
   }
 
-  //Upload file to Cloudinary
-  const result = await cloudinary.uploader.upload(req.file.path, {
-    folder: 'avatars',
-    transformation: [
-      {width: 300, height: 300, quality: 'auto', fetch_format: 'auto' ,crop: 'fill', gravity: 'auto'}
-    ]
-  })
+  
 
   //Get URL of uploaded image
-  const avatarUrl = result.secure_url;
+  const avatarUrl = req.file.path;
 
   //Find the user 
   const user = await User.findById(req.params._id);

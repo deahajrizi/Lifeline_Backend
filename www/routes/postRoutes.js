@@ -1,6 +1,7 @@
 const express = require("express");
 const postController = require("../controllers/postController");
 const { protect } = require("../middleware/authMiddleware");
+const upload = require("../middleware/multerConfig");
 const router = express.Router();
 
 // @route   Route Poste (GET)
@@ -23,14 +24,22 @@ router.route("/create").post(protect, postController.createPost);
 // @access  Privé
 router.route("/:id").put(protect, postController.updatePost);
 
+// @route   Route User (PUT)
+// @desc    Route pour enregistrer le média du poste
+// @access  Privé
+router.route("/upload-post-media/:id").put(protect, upload.uploadPostMedia.single("media"), postController.uploadPostMedia);
+
+
 // @route   Route Poste (DELETE)
 // @desc    Route pour supprimer un poste de la BDD
 // @access  Privé
 router.route("/:id").delete(protect, postController.deletePost);
 
+
 // @route   Route Poste Like (POST)
 // @desc    Route pour aimer un poste de la BDD
 // @access  Privé
 router.route("/:id/like").post(protect, postController.addLike)
+
 
 module.exports = router;

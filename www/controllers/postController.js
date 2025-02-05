@@ -67,7 +67,7 @@ const createPost = asyncHandler(async (req, res) => {
 // @access  Privé
 const updatePost = asyncHandler(async (req, res) => {
   // On récupère les infos du formulaire qui vient du Frontend
-  const { title, content, media, date } = req.body;
+  const { title, content, date } = req.body;
 
   //On contrôle que les infos obligatoires sont présentes et pas vides
   if (!title || title === "" || !content || content === "") {
@@ -86,7 +86,6 @@ const updatePost = asyncHandler(async (req, res) => {
   const updatedPost = await Post.findByIdAndUpdate(req.params.id, {
     title: title,
     content: content,
-    media: media,
     date: date,
   });
   updatedPost.save();
@@ -94,6 +93,40 @@ const updatePost = asyncHandler(async (req, res) => {
     .status(201)
     .json({ message: `Le souvenir appelé ${post.title} a bien été modifié.` });
 });
+
+// @desc    Upload Post Media
+// @route   PUT /api/user/upload-post-media/:_id
+// @access  Privé
+const uploadPostMedia = asyncHandler(async (req, res) => {
+
+  //Check if file was uploaded
+  if(!req.file){
+    res.status(400);
+    throw new Error("No file uploaded");
+  }
+
+  //Get URL of uploaded image
+  const postMediaUrl = req.file.path;
+
+  //Find the post 
+  const post = await Post.findById(req.params.id);
+  if(!post){
+    res.status(404)
+    throw new Error("User not found")
+  }
+
+  //Update the post's media
+  post.media = postMediaUrl;
+  await post.save()
+
+  res.status(200).json({
+    message: 'Post media uploaded successfully',
+    postMediaUrl: postMediaUrl,
+    postId: post.id
+  })
+
+} )
+
 
 // @desc    Supprimer un poste de la BDD
 // @route   DELETE /api/post/id
@@ -138,6 +171,7 @@ module.exports = {
   createPost,
   getSinglePost,
   updatePost,
+  uploadPostMedia,
   deletePost,
   addLike
 };
