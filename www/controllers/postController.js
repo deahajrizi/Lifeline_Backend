@@ -69,17 +69,30 @@ const updatePost = asyncHandler(async (req, res) => {
   // On récupère les infos du formulaire qui vient du Frontend
   const { title, content, date } = req.body;
 
-  //On contrôle que les infos obligatoires sont présentes et pas vides
-  if (!title || title === "" || !content || content === "") {
-    res.status(400);
-    throw new Error("Merci de remplir les champs obligatoires");
-  }
-
   //On vérifie que le poste existe
   const post = await Post.findById(req.params.id);
   if (!post) {
     res.status(400);
     throw new Error("Aucun poste trouvé.");
+  }
+
+  // On vérifie que l'utilisateur connecté est le propriétaire du poste
+  if (post.author.toString() !== req.user._id.toString()) {
+    res.status(401);
+    throw new Error("Vous n'êtes pas autorisé à mettre à jour ce poste");
+  }
+
+  //On contrôle que les infos obligatoires sont présentes et pas vides
+  if (
+    !title ||
+    title === "" ||
+    !content ||
+    content === "" ||
+    !date ||
+    date === ""
+  ) {
+    res.status(400);
+    throw new Error("Merci de remplir les champs obligatoires");
   }
 
   //On met à jour le poste
@@ -98,9 +111,8 @@ const updatePost = asyncHandler(async (req, res) => {
 // @route   PUT /api/user/upload-post-media/:_id
 // @access  Privé
 const uploadPostMedia = asyncHandler(async (req, res) => {
-
   //Check if file was uploaded
-  if(!req.file){
+  if (!req.file) {
     res.status(400);
     throw new Error("No file uploaded");
   }
@@ -108,25 +120,23 @@ const uploadPostMedia = asyncHandler(async (req, res) => {
   //Get URL of uploaded image
   const postMediaUrl = req.file.path;
 
-  //Find the post 
+  //Find the post
   const post = await Post.findById(req.params.id);
-  if(!post){
-    res.status(404)
-    throw new Error("User not found")
+  if (!post) {
+    res.status(404);
+    throw new Error("User not found");
   }
 
   //Update the post's media
   post.media = postMediaUrl;
-  await post.save()
+  await post.save();
 
   res.status(200).json({
-    message: 'Post media uploaded successfully',
+    message: "Post media uploaded successfully",
     postMediaUrl: postMediaUrl,
-    postId: post.id
-  })
-
-} )
-
+    postId: post.id,
+  });
+});
 
 // @desc    Supprimer un poste de la BDD
 // @route   DELETE /api/post/id
@@ -147,24 +157,23 @@ const deletePost = asyncHandler(async (req, res) => {
     .json({ message: `Le poste ${removedPost.title} a bien été supprimé.` });
 });
 
-
 // @desc    Ajouter un like sur un poste
 // @route   POST /api/post/:id/like
 // @access  Privé
 const addLike = asyncHandler(async (req, res) => {
-    const post = await Post.findById(req.params.id)
-    if (!post) {
-        res.status(400);
-        throw new Error("Post not found")
-    }
+  const post = await Post.findById(req.params.id);
+  if (!post) {
+    res.status(400);
+    throw new Error("Post not found");
+  }
 
-    //Like counter
-    post.likes += 1
+  //Like counter
+  post.likes += 1;
 
-    //Mettre à jour le poste (nombre de likes)
-    await post.save()
-    res.status(201).json({ message: `Likes: ${post.likes}` })
-  })
+  //Mettre à jour le poste (nombre de likes)
+  await post.save();
+  res.status(201).json({ message: `Likes: ${post.likes}` });
+});
 
 module.exports = {
   getPosts,
@@ -173,5 +182,5 @@ module.exports = {
   updatePost,
   uploadPostMedia,
   deletePost,
-  addLike
+  addLike,
 };

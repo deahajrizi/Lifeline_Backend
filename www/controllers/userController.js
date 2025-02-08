@@ -127,8 +127,6 @@ const uploadAvatar = asyncHandler(async (req, res) => {
     throw new Error("No file uploaded");
   }
 
-  
-
   //Get URL of uploaded image
   const avatarUrl = req.file.path;
 
