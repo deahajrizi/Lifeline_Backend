@@ -33,6 +33,12 @@ const userSchema = mongoose.Schema(
       type: String,
       default: "../../assets/default-avatar.png",
     },
+    friends: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      }
+    ]
   },
   { timestamps: true }
 );

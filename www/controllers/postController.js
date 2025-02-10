@@ -1,11 +1,13 @@
-const asyncHandler = require("express-async-handler");
-const Post = require("../models/postModel");
+const asyncHandler = require('express-async-handler');
+const Post = require('../models/postModel');
+const User = require('../models/userModel');
 
 // @desc    Récupérer tous les postes d'un utilisateur par son ID
 // @route   GET /api/post/all
 // @access  Privé
 const getPosts = asyncHandler(async (req, res) => {
-  const posts = await Post.find({ author: req.user._id });
+  const user = await User.findById(req.user._id).populate('friends');
+  const posts = await Post.find({ author: { $in: [req.user._id, ...user.friends.map(friend => friend._id)] } });
 
   if (posts.length === 0) {
     res.status(400);
@@ -18,12 +20,23 @@ const getPosts = asyncHandler(async (req, res) => {
 // @route   GET /api/post/id
 // @access  Privé
 const getSinglePost = asyncHandler(async (req, res) => {
-  const post = await Post.findById(req.params.id);
-
-  if (post.length === 0) {
+  const post = await Post.findById(req.params.id).populate('author');
+  if (!post) {
     res.status(400);
     throw new Error("Aucun poste trouvé");
   }
+
+  const user = await User.findById(req.user._id);
+  if (!user) {
+    res.status(401);
+    throw new Error('Utilisateur non trouvé');
+  }
+
+  if (post.author._id.toString() !== req.user._id.toString() && !user.friends.includes(post.author._id)) {
+    res.status(403);
+    throw new Error('Vous n\'êtes pas autorisé à voir ce poste');
+  }
+
   res.status(200).json(post);
 });
 

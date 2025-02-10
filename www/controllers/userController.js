@@ -162,6 +162,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
       username: user.username,
       email: user.email,
       avatar: user.avatar,
+      friends: user.friends,
       message: "Utilisateur récupéré",
     });
   } else {
@@ -169,6 +170,35 @@ const getUserProfile = asyncHandler(async (req, res) => {
     throw new Error("Utilisateur non trouvé.");
   }
 });
+
+// @desc    Add a friend by username
+// @route   PUT /api/user/add-friend
+// @access  Private
+const addFriend = asyncHandler(async (req, res) => {
+  const { username } = req.body;
+
+  const user = await User.findById(req.user._id);
+  const friend = await User.findOne({ username });
+
+  if (!friend) {
+    res.status(404);
+    throw new Error('Utilisateur non trouvé');
+  }
+
+  if (user.friends.includes(friend._id)) {
+    res.status(400);
+    throw new Error('Cet utilisateur est déjà votre ami');
+  }
+
+  user.friends.push(friend._id);
+  await user.save();
+
+  res.status(200).json({
+    message: 'Ami ajouté avec succès',
+    friends: user.friends,
+  });
+});
+
 
 // @desc    Logout utilisateur
 // @route   POST /api/user/logout
@@ -188,5 +218,6 @@ module.exports = {
   register,
   getUserProfile,
   updateUserProfile,
-  uploadAvatar
+  uploadAvatar,
+  addFriend
 };

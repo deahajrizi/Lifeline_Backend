@@ -29,6 +29,11 @@ router.route("/profile/").put(protect, userController.updateUserProfile);
 // @access  Privé
 router.route("/profile/:_id").get(protect, userController.getUserProfile);
 
+// @route   PUT /api/user/add-friend
+// @desc    Add a friend by username
+// @access  Private
+router.route('/add-friend').put(protect, userController.addFriend);
+
 // @route   Route User (PUT)
 // @desc    Route pour enregistrer l'avatar d'un utilisateur
 // @access  Privé
