@@ -7,7 +7,7 @@ const router = express.Router();
 // @route   Route Poste (GET)
 // @desc    Route pour obtenir tous les postes d'un utilisateur par son ID
 // @access  Privé
-router.route("/all").get(protect, postController.getPosts);
+router.route("/all/:friendId?").get(protect, postController.getPosts);
 
 // @route   Route Poste (GET)
 // @desc    Route pour obtenir un poste depuis son ID

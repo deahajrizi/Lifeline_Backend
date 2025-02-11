@@ -29,6 +29,11 @@ router.route("/profile/").put(protect, userController.updateUserProfile);
 // @access  Privé
 router.route("/profile/:_id").get(protect, userController.getUserProfile);
 
+// @route   Route User (GET)
+// @desc    Route pour récupérer le profil de tous les amis de l'utilisateur connecté
+// @access  Privé
+router.route("/friends").get(protect, userController.getFriendsProfiles);
+
 // @route   PUT /api/user/add-friend
 // @desc    Add a friend by username
 // @access  Private

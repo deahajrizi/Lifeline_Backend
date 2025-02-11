@@ -2,7 +2,7 @@
 const asyncHandler = require("express-async-handler");
 const User = require("../models/userModel");
 const { generateToken } = require("../utils/generateToken");
-const cloudinary = require('cloudinary').v2
+
 
 // @desc    Login utilisateur avec token
 // @route   POST /api/user/auth
@@ -171,6 +171,22 @@ const getUserProfile = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Get friends profiles
+// @route   GET /api/user/friends
+// @access  Private
+const getFriendsProfiles = asyncHandler(async (req, res) => {
+   const user = await User.findById(req.user._id).populate('friends', '_id username first_name last_name avatar');
+
+  if (!user) {
+    res.status(404);
+    throw new Error('Utilisateur non trouvé');
+  } 
+  res.status(200).json({
+    message: 'Liste des amis récupérée avec succès',
+    friends: user.friends,
+  });
+});
+
 // @desc    Add a friend by username
 // @route   PUT /api/user/add-friend
 // @access  Private
@@ -219,5 +235,6 @@ module.exports = {
   getUserProfile,
   updateUserProfile,
   uploadAvatar,
-  addFriend
+  addFriend,
+  getFriendsProfiles
 };

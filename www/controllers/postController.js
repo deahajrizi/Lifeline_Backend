@@ -6,13 +6,27 @@ const User = require('../models/userModel');
 // @route   GET /api/post/all
 // @access  Privé
 const getPosts = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id).populate('friends');
-  const posts = await Post.find({ author: { $in: [req.user._id, ...user.friends.map(friend => friend._id)] } });
+  const { friendId } = req.params;
+  let posts;
+
+  if (friendId) {
+    // Fetch posts for the specific friend
+    posts = await Post.find({ author: friendId });
+  } else {
+    // Fetch posts for the user and their friends
+    const user = await User.findById(req.user._id).populate("friends");
+    posts = await Post.find({
+      author: {
+        $in: [req.user._id, ...user.friends.map((friend) => friend._id)],
+      },
+    });
+  }
 
   if (posts.length === 0) {
     res.status(400);
     throw new Error("Aucun poste trouvé.");
   }
+
   res.status(200).json(posts);
 });
 
