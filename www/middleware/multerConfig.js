@@ -25,11 +25,16 @@ const postMediaStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: "posts",
-    allowed_formats: ["jpg", "jpeg", "png", "webp", "mp4", "mov"],
+    resource_type: "auto",
+    allowed_formats: ["jpg", "jpeg", "png", "webp", "mp4", "mov", "gif"],
   },
 });
 
 const uploadUserAvatar = multer({ storage: avatarStorage });
-const uploadPostMedia = multer({ storage: postMediaStorage });
+const uploadPostMedia = multer({ 
+  storage: postMediaStorage,
+  limits: {
+    fileSize: 500 * 1024 * 1024 // 500MB
+ }});
 
 module.exports = { uploadUserAvatar, uploadPostMedia };

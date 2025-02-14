@@ -14,17 +14,14 @@ const getComments = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error("Post not found");
   }
-  // Find comments for the given post
-  const comments = await CommentModel.find({ post: req.params.id });
 
-  // If no comments are found, return a 400 error
-  if (!comments.length) {
-    res.status(400);
-    throw new Error("No comments found for this post");
-  }
+  const comments = await CommentModel.find({ post: req.params.id }).populate(
+    "author",
+    "_id username avatar"
+  );
 
-  // Return the comments for the post
-  res.status(201).json(comments);
+  // Return the comments for the post, or an empty array if no comments are found
+  res.status(200).json(comments);
 });
 
 // @desc    Récupérer un commentaire d'un poste spécifique

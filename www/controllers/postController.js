@@ -135,7 +135,7 @@ const updatePost = asyncHandler(async (req, res) => {
 });
 
 // @desc    Upload Post Media
-// @route   PUT /api/user/upload-post-media/:_id
+// @route   PUT /api/user/upload-post-media/:id
 // @access  Privé
 const uploadPostMedia = asyncHandler(async (req, res) => {
   //Check if file was uploaded

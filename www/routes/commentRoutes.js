@@ -9,11 +9,9 @@ const router = express.Router();
 router.route("/:id/comments").get(protect, commentController.getComments);
 
 // @route   Route Commentaire (GET)
-// @desc    Route pour récupérer un commentaires d'un poste spécifique
+// @desc    Route pour récupérer un commentaire d'un poste spécifique
 // @access  Privé
-router
-  .route("/:postId/comments/:commentId")
-  .get(protect, commentController.getSingleComment);
+router.route("/:postId/comments/:commentId").get(protect, commentController.getSingleComment);
 
 // @route   Route Commentaire (POST)
 // @desc    Route pour créer un commentaire
