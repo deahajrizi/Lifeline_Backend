@@ -4,43 +4,43 @@ const { protect } = require("../middleware/authMiddleware");
 const upload = require("../middleware/multerConfig");
 const router = express.Router();
 
-// @route   Route User (POST)
-// @desc    Route pour créer un utilisateur
+// @route   User Route (POST)
+// @desc    Route to register a new user
 // @access  Public
 router.route("/register").post(userController.register);
 
-// @route   Route User (POST)
-// @desc    Route pour logger un utilisateur
+// @route   User Route (POST)
+// @desc    Route to login a user
 // @access  Public
 router.route("/auth").post(userController.login);
 
-// @route   Route User (POST)
-// @desc    Route pour logout un utilisateur
-// @access  Privé
+// @route   User Route (POST)
+// @desc    Route to logout a user
+// @access  Private
 router.route("/logout").post(userController.logout);
 
-// @route   Route User (PUT)
-// @desc    Route pour mettre à jour le profil d'un utilisateur
-// @access  Privé
+// @route   User Route (PUT)
+// @desc    Route to update a user's profile
+// @access  Private
 router.route("/profile/").put(protect, userController.updateUserProfile);
 
-// @route   Route User (GET)
-// @desc    Route pour récupérer le profil d'un utilisateur
-// @access  Privé
+// @route   User Route (GET)
+// @desc    Route to get a user's profile
+// @access  Private
 router.route("/profile/:_id").get(protect, userController.getUserProfile);
 
-// @route   Route User (GET)
-// @desc    Route pour récupérer le profil de tous les amis de l'utilisateur connecté
-// @access  Privé
+// @route   User Route (GET)
+// @desc    Route to get all friends profiles
+// @access  Private
 router.route("/friends").get(protect, userController.getFriendsProfiles);
 
-// @route   PUT /api/user/add-friend
-// @desc    Add a friend by username
+// @route   User Route (PUT)
+// @desc    Route to add a friend by username
 // @access  Private
 router.route('/add-friend').put(protect, userController.addFriend);
 
-// @route   Route User (PUT)
-// @desc    Route pour enregistrer l'avatar d'un utilisateur
+// @route   User Route (PUT)
+// @desc    Route to upload a user avatar
 // @access  Privé
 router.route("/upload-avatar/:_id").put(protect, upload.uploadUserAvatar.single("avatar"), userController.uploadAvatar);
 

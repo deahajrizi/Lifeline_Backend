@@ -1,13 +1,11 @@
-//On importe les librairies
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 
-//On définit le schéma de données que l'on souhaite pour nos utilisateurs
 const userSchema = mongoose.Schema(
   {
     last_name: {
       type: String,
-      trim: true, //Supprime les espaces ou caractères inutiles
+      trim: true,
       required: true,
     },
     first_name: {
@@ -17,13 +15,14 @@ const userSchema = mongoose.Schema(
     },
     username: {
       type: String,
+      unique: true,
       trim: true,
       required: true,
     },
     email: {
       type: String,
-      unique: true, //Ne peux exister qu'une seule fois dans la BDD
-      required: true, //Champs obligatoire
+      unique: true, 
+      required: true, 
     },
     password: {
       type: String,
@@ -43,17 +42,17 @@ const userSchema = mongoose.Schema(
   { timestamps: true }
 );
 
-//Compare le mot de passe entré par l'utilisateur avec celui de la BDD (encrypté)
+// Compare the password entered by the user with the hashed password in the database
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-//On crypte le mot de passe
+// Hash the password before saving it to the database
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     next();
   }
-
+// Generate a salt and hash the password
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });

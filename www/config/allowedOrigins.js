@@ -1,4 +1,4 @@
-//Adresse du serveur frontend
+// Frontend address
 const allowedOrigins = [
     'http://localhost:5173'
 ]

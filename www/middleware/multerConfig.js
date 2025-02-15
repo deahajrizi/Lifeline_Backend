@@ -1,7 +1,7 @@
 const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const cloudinary = require("../config/cloudinaryConfig");
-//Avatars
+// Avatars
 const avatarStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
@@ -20,7 +20,7 @@ const avatarStorage = new CloudinaryStorage({
   },
 });
 
-//Post media
+//Post Media
 const postMediaStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {

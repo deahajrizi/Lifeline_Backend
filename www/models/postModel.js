@@ -1,6 +1,4 @@
-//Import des librairies
 const mongoose = require('mongoose')
-
 
 const postSchema = mongoose.Schema(
   {
@@ -19,7 +17,7 @@ const postSchema = mongoose.Schema(
     },
     author: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // référence à la collection User
+      ref: "User", // Reference to the User Model
       required: true,
     },
     date: {
@@ -27,13 +25,8 @@ const postSchema = mongoose.Schema(
       required: true,
       default: Date.now,
     },
-    likes: { 
-      type: Number, default: 0 //Like counter
-    }
   },
   { timestamps: true }
 );
-
-//code pour récupérer l'id de l'auteur aka utilsateur connecté ici
 
 module.exports = mongoose.model('Post', postSchema)

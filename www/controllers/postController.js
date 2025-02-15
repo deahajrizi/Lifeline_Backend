@@ -2,78 +2,87 @@ const asyncHandler = require('express-async-handler');
 const Post = require('../models/postModel');
 const User = require('../models/userModel');
 
-// @desc    Récupérer tous les postes d'un utilisateur par son ID
+// @desc    Get All Posts By User ID
 // @route   GET /api/post/all
-// @access  Privé
+// @access  Private
 const getPosts = asyncHandler(async (req, res) => {
+  // Get the friendId from the URL
   const { friendId } = req.params;
   let posts;
 
   if (friendId) {
+    // Fetch the user's friends
+    const user = await User.findById(req.user._id).populate('friends');
+    // Check if the friendId is in the user's friends list
+    if (!user.friends.some(friend => friend._id.toString() === friendId)) {
+      res.status(403);
+      throw new Error("You are not authorized to view this user's posts");
+    }
     // Fetch posts for the specific friend
     posts = await Post.find({ author: friendId });
   } else {
-    // Fetch posts for the user and their friends
-    const user = await User.findById(req.user._id).populate("friends");
-    posts = await Post.find({
-      author: {
-        $in: [req.user._id, ...user.friends.map((friend) => friend._id)],
-      },
-    });
+    // Fetch posts for the logged-in user only
+    posts = await Post.find({ author: req.user._id });
   }
-
+  // Check if there are any posts
   if (posts.length === 0) {
     res.status(400);
-    throw new Error("Aucun poste trouvé.");
+    throw new Error("No posts found.");
   }
 
   res.status(200).json(posts);
 });
 
-// @desc    Récupérer un poste depuis son ID
+// @desc    Get Single Post By ID
 // @route   GET /api/post/id
-// @access  Privé
+// @access  Private
 const getSinglePost = asyncHandler(async (req, res) => {
+  // Fetch the post by its ID and populate the author field with the user details
   const post = await Post.findById(req.params.id).populate('author');
+  // Check if the post exists
   if (!post) {
     res.status(400);
-    throw new Error("Aucun poste trouvé");
+    throw new Error("No post found.");
   }
 
+  // Check if the user exists
   const user = await User.findById(req.user._id);
   if (!user) {
     res.status(401);
-    throw new Error('Utilisateur non trouvé');
+    throw new Error('User not found.');
   }
 
+  // Check if the user is authorized to view the post
   if (post.author._id.toString() !== req.user._id.toString() && !user.friends.includes(post.author._id)) {
     res.status(403);
-    throw new Error('Vous n\'êtes pas autorisé à voir ce poste');
+    throw new Error('You are not authorized to view this post.');
   }
 
   res.status(200).json(post);
 });
 
-// @desc    Créer un souvenir dans la BDD
+// @desc    Create New Post
 // @route   POST /api/post/create
-// @access  Privé
+// @access  Private
 const createPost = asyncHandler(async (req, res) => {
+  // Fetch the form data from the frontend
   const { title, content, media, date } = req.body;
 
-  //On contrôle que les infos obligatoires sont présentes et pas vides
+  // Check if required fields are filled
   if (!title || title === "" || !content || content === "") {
     res.status(400);
-    throw new Error("Merci de remplir les champs obligatoires");
+    throw new Error("Please fill in the required fields.");
   }
 
+  // Create the new post in the database
   const post = await Post.create({
     title,
     content,
     media,
-    author: req.user._id, // l'utilisateur connecté
+    author: req.user._id, // Connected user's ID
     date,
   });
-  //Si le poste a bien été créé, on affiche ses informations
+  // If the post is created, return the post details
   if (post) {
     res.status(201).json({
       _id: post._id,
@@ -85,31 +94,31 @@ const createPost = asyncHandler(async (req, res) => {
     });
   } else {
     res.status(400);
-    throw new Error("Une erreur est survenue. Le poste n'a pas été créé.");
+    throw new Error("Something went wrong while creating the post. Please try again.");
   }
 });
 
-// @desc    Mettre à jour un poste dans la BDD
+// @desc    Update Post By ID
 // @route   PUT /api/post/id
-// @access  Privé
+// @access  Private
 const updatePost = asyncHandler(async (req, res) => {
-  // On récupère les infos du formulaire qui vient du Frontend
+  // Fetch the form data from the frontend
   const { title, content, date } = req.body;
 
-  //On vérifie que le poste existe
+  // Check if the post exists
   const post = await Post.findById(req.params.id);
   if (!post) {
     res.status(400);
-    throw new Error("Aucun poste trouvé.");
+    throw new Error("No post found.");
   }
 
-  // On vérifie que l'utilisateur connecté est le propriétaire du poste
+  // Check if the connected user is the author of the post
   if (post.author.toString() !== req.user._id.toString()) {
     res.status(401);
-    throw new Error("Vous n'êtes pas autorisé à mettre à jour ce poste");
+    throw new Error("You are not authorized to update this post.");
   }
 
-  //On contrôle que les infos obligatoires sont présentes et pas vides
+  // Check if required fields are filled
   if (
     !title ||
     title === "" ||
@@ -119,10 +128,10 @@ const updatePost = asyncHandler(async (req, res) => {
     date === ""
   ) {
     res.status(400);
-    throw new Error("Merci de remplir les champs obligatoires");
+    throw new Error("Please fill in the required fields.");
   }
 
-  //On met à jour le poste
+  // Update the post
   const updatedPost = await Post.findByIdAndUpdate(req.params.id, {
     title: title,
     content: content,
@@ -131,76 +140,58 @@ const updatePost = asyncHandler(async (req, res) => {
   updatedPost.save();
   res
     .status(201)
-    .json({ message: `Le souvenir appelé ${post.title} a bien été modifié.` });
+    .json({ message: `The post ${post.title} has been updated.` });
 });
 
 // @desc    Upload Post Media
 // @route   PUT /api/user/upload-post-media/:id
-// @access  Privé
+// @access  Private
 const uploadPostMedia = asyncHandler(async (req, res) => {
-  //Check if file was uploaded
+  // Check if file was uploaded
   if (!req.file) {
     res.status(400);
-    throw new Error("No file uploaded");
+    throw new Error("No file uploaded.");
   }
 
-  //Get URL of uploaded image
+  // Get URL of uploaded image
   const postMediaUrl = req.file.path;
 
-  //Find the post
+  // Find the post
   const post = await Post.findById(req.params.id);
   if (!post) {
     res.status(404);
-    throw new Error("User not found");
+    throw new Error("Post not found.");
   }
 
-  //Update the post's media
+  // Update the post's media
   post.media = postMediaUrl;
   await post.save();
 
   res.status(200).json({
-    message: "Post media uploaded successfully",
+    message: "Post media uploaded successfully!",
     postMediaUrl: postMediaUrl,
     postId: post.id,
   });
 });
 
-// @desc    Supprimer un poste de la BDD
+// @desc    Delete Post By ID
 // @route   DELETE /api/post/id
-// @access  Privé
+// @access  Private
 const deletePost = asyncHandler(async (req, res) => {
+  // Check if the post exists
   const post = await Post.findById(req.params.id);
-
-  //On vérifie que le poste existe
   if (!post) {
     res.status(400);
-    throw new Error("Aucun poste trouvé.");
+    throw new Error("No post found.");
   }
 
-  //On supprime le poste
+  // Remove the post from the database
   const removedPost = await Post.findByIdAndDelete(req.params.id);
   res
     .status(200)
-    .json({ message: `Le poste ${removedPost.title} a bien été supprimé.` });
+    .json({ message: `The post ${removedPost.title} has been deleted.` });
 });
 
-// @desc    Ajouter un like sur un poste
-// @route   POST /api/post/:id/like
-// @access  Privé
-const addLike = asyncHandler(async (req, res) => {
-  const post = await Post.findById(req.params.id);
-  if (!post) {
-    res.status(400);
-    throw new Error("Post not found");
-  }
-
-  //Like counter
-  post.likes += 1;
-
-  //Mettre à jour le poste (nombre de likes)
-  await post.save();
-  res.status(201).json({ message: `Likes: ${post.likes}` });
-});
 
 module.exports = {
   getPosts,
@@ -209,5 +200,4 @@ module.exports = {
   updatePost,
   uploadPostMedia,
   deletePost,
-  addLike,
 };

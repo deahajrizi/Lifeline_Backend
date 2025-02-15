@@ -3,29 +3,24 @@ const commentController = require("../controllers/commentController");
 const { protect } = require("../middleware/authMiddleware");
 const router = express.Router();
 
-// @route   Route Commentaire (GET)
-// @desc    Route pour récupérer tous les commentaires d'un poste spécifique
-// @access  Privé
+// @route   Comment Route (GET)
+// @desc    Route to get all comments for a post by its ID
+// @access  Private
 router.route("/:id/comments").get(protect, commentController.getComments);
 
-// @route   Route Commentaire (GET)
-// @desc    Route pour récupérer un commentaire d'un poste spécifique
-// @access  Privé
-router.route("/:postId/comments/:commentId").get(protect, commentController.getSingleComment);
-
-// @route   Route Commentaire (POST)
-// @desc    Route pour créer un commentaire
-// @access  Privé
+// @route   Comment Route (POST)
+// @desc    Route to create a new comment
+// @access  Private
 router.route("/create").post(protect, commentController.createComment);
 
-// @route   Route Commentaire (PUT)
-// @desc    Route pour modifier un commentaire par son id
-// @access  Privé
+// @route   Comment Route (PUT)
+// @desc    Route to edit a comment by its ID
+// @access  Private
 router.route("/:id").put(protect, commentController.editComment);
 
-// @route   Route Commentaire (DELETE)
-// @desc    Route pour supprimer un commentaire par son id
-// @access  Privé
+// @route   Comment Route (DELETE)
+// @desc    Route to delete a comment by its ID
+// @access  Private
 router.route("/:id").delete(protect, commentController.deleteComment);
 
 module.exports = router;

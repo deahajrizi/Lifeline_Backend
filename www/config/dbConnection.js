@@ -1,7 +1,6 @@
-//Import de Mongoose (librairie MongoDB)
 const mongoose = require('mongoose')
 
-//On essaie de se connecter à MongoDB. On envoie une erreur si ça échoue
+// Connect to MongoDB, if it fails, throw an error
 const connectDB = async () => {
     try {
         await mongoose.connect(process.env.DATABASE_URI)

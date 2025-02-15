@@ -4,16 +4,17 @@ const User = require("../models/userModel");
 const { generateToken } = require("../utils/generateToken");
 
 
-// @desc    Login utilisateur avec token
+// @desc    Login User
 // @route   POST /api/user/auth
 // @access  Public
 const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
+  // Check if email and password are provided
   const user = await User.findOne({ email });
   if (user && (await user.matchPassword(password))) {
+    // If user is found, generate a token and send it to the client
     generateToken(res, user._id);
-    console.log('logged in')
     res.status(201).json({
       _id: user._id,
       username: user.username,
@@ -21,22 +22,22 @@ const login = asyncHandler(async (req, res) => {
       first_name: user.first_name,
       email: user.email,
       avatar: user.avatar,
-      message: "Utilisateur connecté avec succès",
+      message: "User logged in successfully!",
     });
   } else {
     res.status(401);
-    throw new Error("L'adresse email ou le mot de passe ne correspond pas.");
+    throw new Error("Email address or password is incorrect.");
   }
 });
 
-// @desc    Créer un utilisateur dans la BDD
+// @desc    Register User
 // @route   POST /api/user/register
 // @access  Public
 const register = asyncHandler(async (req, res) => {
-  //On récupère les infos du formulaire (frontend)
+  // Fetch user details from the frontend
   const { username, last_name, first_name, email, password } = req.body;
 
-  //On contrôle que les infos obligatoires sont présentes et pas vides
+  // Check if required fields are filled
   if (
     !username ||
     username === "" ||
@@ -50,17 +51,17 @@ const register = asyncHandler(async (req, res) => {
     !password
   ) {
     res.status(400);
-    throw new Error("Merci de remplir les champs obligatoires.");
+    throw new Error("Please fill in the required fields.");
   }
 
-  //On contrôle que l'utilisateur n'existe pas dans la BDD
+  // Check if user already exists
   const userExists = await User.findOne({ email });
   if (userExists) {
     res.status(400);
-    throw new Error("L'utilisateur existe déjà.");
+    throw new Error("User already exists.");
   }
 
-  //On enregistre l'utilisateur dans la BDD
+  // Create the new user
   const user = await User.create({
     username,
     last_name,
@@ -69,6 +70,7 @@ const register = asyncHandler(async (req, res) => {
     password,
     avatar: req.body.avatar || undefined
   });
+  // If the user is created, return the user details
   if (user) {
     generateToken(res, user._id);
     res.status(201).json({
@@ -81,26 +83,27 @@ const register = asyncHandler(async (req, res) => {
     });
   } else {
     res.status(400);
-    throw new Error("Une erreur est survenue. Merci de recommencer.");
+    throw new Error("Something went wrong while creating the user.");
   }
 });
 
-// @desc    Mettre à jour le profil d'un utilisateur par son ID
+// @desc    Update User Profile
 // @route   PUT /api/user/profile/
-// @access  Privé
+// @access  Private
 const updateUserProfile = asyncHandler(async (req, res) => {
   const {username, first_name, last_name, email} = req.body
+  // Find the user
   const user = await User.findById(req.user._id);
-
   if (!user) {
     res.status(400);
-    throw new Error("L'utilisateur n'existe pas.");
+    throw new Error("User not found.");
   }
   user.username = username || user.username;
-   user.last_name = last_name || user.last_name;
+  user.last_name = last_name || user.last_name;
   user.first_name = first_name || user.first_name;
   user.email = email || user.email;
 
+  // Update password if provided
   if (req.body.password) {
     user.password = req.body.password;
   }
@@ -112,47 +115,46 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     last_name: updatedUser.last_name,
     first_name: updatedUser.first_name,
     email: updatedUser.email,
-    message: "Utilisateur modifié avec succès",
+    message: "User updated successfully!",
   });
 });
 
-// @desc    Upload Avatar
+// @desc    Upload User Avatar
 // @route   PUT /api/user/upload-avatar/:_id
-// @access  Privé
+// @access  Private
 const uploadAvatar = asyncHandler(async (req, res) => {
-
-  //Check if file was uploaded
+  // Check if file was uploaded
   if(!req.file){
     res.status(400);
-    throw new Error("No file uploaded");
+    throw new Error("No file uploaded.");
   }
 
-  //Get URL of uploaded image
+  // Get URL of uploaded image
   const avatarUrl = req.file.path;
 
-  //Find the user 
+  // Find the user 
   const user = await User.findById(req.params._id);
   if(!user){
     res.status(404)
-    throw new Error("User not found")
+    throw new Error("User not found.")
   }
 
-  //Update the user's avatar
+  // Update the user's avatar
   user.avatar = avatarUrl;
   await user.save()
 
   res.status(200).json({
-    message: 'Avatar uploaded successfully',
+    message: 'Avatar uploaded successfully!',
     avatarUrl: avatarUrl,
     userId: user._id
   })
-
 } )
 
-// @desc    Récupérer le profil d'un utilisateur par son ID
+// @desc    Get User Profile
 // @route   GET /api/user/profile/:_id
-// @access  Privé
+// @access  Private
 const getUserProfile = asyncHandler(async (req, res) => {
+  // Find the user
   const user = await User.findById(req.params._id);
   if (user) {
     res.status(200).json({
@@ -163,69 +165,71 @@ const getUserProfile = asyncHandler(async (req, res) => {
       email: user.email,
       avatar: user.avatar,
       friends: user.friends,
-      message: "Utilisateur récupéré",
+      message: "User profile retrieved successfully.",
     });
   } else {
     res.status(400);
-    throw new Error("Utilisateur non trouvé.");
+    throw new Error("User not found.");
   }
 });
 
-// @desc    Get friends profiles
+// @desc    Get Friends Profiles
 // @route   GET /api/user/friends
 // @access  Private
 const getFriendsProfiles = asyncHandler(async (req, res) => {
+  // Find the user and populate the friends field with the _id, username, first_name, last_name, and avatar fields
    const user = await User.findById(req.user._id).populate('friends', '_id username first_name last_name avatar');
-
   if (!user) {
     res.status(404);
-    throw new Error('Utilisateur non trouvé');
+    throw new Error('User not found.');
   } 
   res.status(200).json({
-    message: 'Liste des amis récupérée avec succès',
+    message: 'Friends profiles retrieved successfully.',
     friends: user.friends,
   });
 });
 
-// @desc    Add a friend by username
+// @desc    Add Friend By Username
 // @route   PUT /api/user/add-friend
 // @access  Private
 const addFriend = asyncHandler(async (req, res) => {
+  // Find the user and the friend
   const { username } = req.body;
-
   const user = await User.findById(req.user._id);
   const friend = await User.findOne({ username });
 
   if (!friend) {
     res.status(404);
-    throw new Error('Utilisateur non trouvé');
+    throw new Error('User not found.');
   }
-
+  // Check if the user is already friends with the friend
   if (user.friends.includes(friend._id)) {
     res.status(400);
-    throw new Error('Cet utilisateur est déjà votre ami');
+    throw new Error('You are already friends with this user.');
   }
 
+  // Add the friend to the user's friends list
   user.friends.push(friend._id);
   await user.save();
 
   res.status(200).json({
-    message: 'Ami ajouté avec succès',
+    message: 'Friend added successfully!',
     friends: user.friends,
   });
 });
 
 
-// @desc    Logout utilisateur
+// @desc    Logout User
 // @route   POST /api/user/logout
-// @access  Privé
+// @access  Private
 const logout = asyncHandler(async (req, res) => {
+  // Clear the cookie
   res.cookie("jwt", "", {
     httpOnly: true,
-    //Expire maintenant
+    //Expires now
     expires: new Date(0),
   });
-  res.status(200).json({ message: "Utilisateur déconnecté avec succès." });
+  res.status(200).json({ message: "User logged out successfully!" });
 });
 
 module.exports = {

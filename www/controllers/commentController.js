@@ -2,8 +2,8 @@ const asyncHandler = require("express-async-handler");
 const CommentModel = require("../models/commentModel");
 const PostModel = require("../models/postModel");
 
-// @desc    Récupérer tous les commentaires d'un poste
-// @route   GET /api/comment/:id/comments (:id = postId)
+// @desc    Get Comments for a post by its ID
+// @route   GET /api/comment/:id/comments
 // @access  Private
 const getComments = asyncHandler(async (req, res) => {
   // Find the post by its ID
@@ -14,7 +14,8 @@ const getComments = asyncHandler(async (req, res) => {
     res.status(404);
     throw new Error("Post not found");
   }
-
+// Find all comments for the post and populate the author field with the _id, username, and avatar fields 
+// to get the author's details
   const comments = await CommentModel.find({ post: req.params.id }).populate(
     "author",
     "_id username avatar"
@@ -24,46 +25,29 @@ const getComments = asyncHandler(async (req, res) => {
   res.status(200).json(comments);
 });
 
-// @desc    Récupérer un commentaire d'un poste spécifique
-// @route   GET /api/comment/:postId/:commentId (:id = postId)
-// @access  Private
-const getSingleComment = asyncHandler(async (req, res) => {
-  const { postId, commentId } = req.params;
-  const post = await PostModel.findById(postId);
 
-  if (!post) {
-    res.status(400);
-    throw new Error("Poste non trouvé.");
-  }
-
-  const comment = await CommentModel.findById(commentId);
-
-  if (!comment) {
-    res.status(400);
-    throw new Error("Commentaire non trouvé.");
-  }
-  res.status(201).json(comment);
-});
-
-// @desc    Créer un commentaire dans la BDD
+// @desc    Create New Comment
 // @route   POST /api/comment/create
-// @access  Privé
+// @access  Private
 const createComment = asyncHandler(async (req, res) => {
   const { content, post } = req.body;
 
-  //On contrôle que les infos obligatoires sont présentes et pas vides
+  // Check if required fields are filled
   if (!content || content === "") {
     res.status(400);
-    throw new Error("Merci de remplir les champs obligatoires.");
+    throw new Error("Please fill in the required fields");
   }
 
+  // Create the new comment
   const comment = await CommentModel.create({
     content,
-    author: req.user._id, //utilisateur connecté
+    // Connected user's ID
+    author: req.user._id,
     post,
     createdAt: new Date(),
   });
 
+  // If the comment is created, return the comment details
   if (comment) {
     res.status(201).json({
       _id: comment._id,
@@ -75,57 +59,61 @@ const createComment = asyncHandler(async (req, res) => {
   } else {
     res.status(400);
     throw new Error(
-      "Une erreur est survenue. Le commentaire n'a pas été créé."
+      "Something went wrong while creating the comment. Please try again."
     );
   }
 });
 
-// @desc    Modifier un commentaire dans la BDD (par son id)
+// @desc    Upadate Comment by its ID
 // @route   PUT /api/comment/id
-// @access  Privé
+// @access  Private
 const editComment = asyncHandler(async (req, res) => {
+  // Fetch the content from the request body
   const { content } = req.body;
 
+  // Check if the required fields are empty
   if (!content || content === "") {
     res.status(400);
-    throw new Error("Merci de remplir les champs obligatoires");
+    throw new Error("Please fill in the required fields.");
   }
 
-  //On vérifie que le commentaire existe
+  // Check if the comment exists
   const comment = await CommentModel.findById(req.params.id);
   if (!comment) {
     res.status(400);
-    throw new Error("Aucun commentaire trouvé.");
+    throw new Error("No comment found.");
   }
 
-  //On modifie le commentaire
+  // Update the comment
   const editedComment = await CommentModel.findByIdAndUpdate(req.params.id, {
     content: content,
   });
   editedComment.save();
-  res.status(201).json({ message: `Le commentaire a bien été modifié.` });
+  res.status(201).json({ message: `The comment '${removedComment.content}' has been updated.` });
 });
 
-// @desc    Supprimer un commentaire de la BDD (par son id)
+// @desc    Delete Comment by its ID
 // @route   DELETE /api/comment/id
-// @access  Privé
+// @access  Private
 const deleteComment = asyncHandler(async (req, res) => {
+  // Check if the comment exists
   const comment = await CommentModel.findById(req.params.id);
 
+  // If no comment is found, return a 400 error
   if (!comment) {
     res.status(400);
-    throw new Error("Aucun commentaire trouvé.");
+    throw new Error("No comment found.");
   }
 
+  // Delete the comment
   const removedComment = await CommentModel.findByIdAndDelete(req.params.id);
   res.status(200).json({
-    message: `Le commentaire '${removedComment.content}' a été supprimé.`,
+    message: `The comment '${removedComment.content}' has been deleted.`,
   });
 });
 
 module.exports = {
   getComments,
-  getSingleComment,
   createComment,
   editComment,
   deleteComment,

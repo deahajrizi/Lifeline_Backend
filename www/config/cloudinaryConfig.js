@@ -1,3 +1,4 @@
+// Config file for cloudinary -> picture storage
 require('dotenv').config();
 const cloudinary = require('cloudinary').v2;
 

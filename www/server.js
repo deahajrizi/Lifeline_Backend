@@ -9,34 +9,34 @@ const app = express();
 require("dotenv").config();
 const PORT = process.env.PORT || 8080;
 
-//Connexion à la BDD
+// Connect to Database
 connectDB();
 
-//Configuration du serveur
+// CORS Configuration
 app.use(cors(corsOptions))
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser())
 
-//Routes utilisées pour les postes (souvenirs)
+// Posts Routes
 app.use("/api/post", require("./routes/postRoutes"));
-//Routes utilisées pour les utilisateurs
+// User Routes
 app.use("/api/user", require("./routes/userRoutes"));
-//Routes utilisées pour les commentaires
+// Comment Routes
 app.use("/api/comment", require("./routes/commentRoutes"));
 
 
-//Afficher les stacks d'erreur en mode développement
+// Error Handler Middleware
 app.use(errorHandler);
 
-//On se connecte à MongoDB et on lance le serveur
+// Connect to MongoDB and start the server
 mongoose.connection.once("open", () => {
   console.log("Connected to MongoDB");
   app.listen(PORT, () => {
-    console.log(`Serveur lancé sur le port ${PORT}`);
+    console.log(`Server started on port: ${PORT}`);
   });
 });
-//Si on a un problème de connexion
+// If there's an error connecting to MongoDB, log the error
 mongoose.connection.on("error", (err) => {
-  console.log(`Erreur de connexion à MongoDB : ${err}`);
+  console.log(`Error connecting to MongoDB : ${err}`);
 });
