@@ -1,7 +1,7 @@
-# Lifeline_Backend_2.0
+# Lifeline_Backend
 
 ## Description
-Lifeline_Backend_2.0 is the server-side application for the Lifeline project. It is built using Node.js, Express, and MongoDB. This backend handles user authentication, post management, and other core functionalities.
+Lifeline_Backend is the server-side application for the Lifeline project. It is built using Node.js, Express, and MongoDB. This backend handles user authentication, post management, and other core functionalities.
 
  ## Features
 - User Authentication (Login, Register, Logout)
