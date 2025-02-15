@@ -26,11 +26,11 @@ Lifeline_Backend is the server-side application for the Lifeline project. It is 
 ## Installation
 1. Clone the repository:
     ```sh
-    git clone https://github.com/deahajrizi/Lifeline_Backend_2.0.git
+    git clone https://github.com/deahajrizi/Lifeline_Backend.git
     ```
 2. Navigate to the project directory:
     ```sh
-    cd Lifeline_Backend_2.0/www
+    cd Lifeline_Backend/www
     ```
 3. Install the dependencies:
     ```sh
@@ -84,7 +84,7 @@ Lifeline_Backend is the server-side application for the Lifeline project. It is 
 The application uses a custom error handler middleware to handle errors gracefully. The error handler is defined in [`www/middleware/errorHandler.js`](www/middleware/errorHandler.js).
 
 ## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
 
 ## Author
 Dea Hajrizi
