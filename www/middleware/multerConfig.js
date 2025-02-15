@@ -1,7 +1,7 @@
 const multer = require("multer");
 const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const cloudinary = require("../config/cloudinaryConfig");
-// Avatars
+//Avatars
 const avatarStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
@@ -20,13 +20,13 @@ const avatarStorage = new CloudinaryStorage({
   },
 });
 
-//Post Media
+//Post media
 const postMediaStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: "posts",
     resource_type: "auto",
-    allowed_formats: ["jpg", "jpeg", "png", "webp", "mp4", "mov", "gif"],
+    allowed_formats: ["jpg", "jpeg", "png", "webp", "mp4", "mov"],
   },
 });
 
@@ -34,7 +34,7 @@ const uploadUserAvatar = multer({ storage: avatarStorage });
 const uploadPostMedia = multer({ 
   storage: postMediaStorage,
   limits: {
-    fileSize: 500 * 1024 * 1024 // 500MB
+    fileSize: 50 * 1024 * 1024, // 50MB
  }});
 
 module.exports = { uploadUserAvatar, uploadPostMedia };

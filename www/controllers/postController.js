@@ -26,10 +26,9 @@ const getPosts = asyncHandler(async (req, res) => {
   }
   // Check if there are any posts
   if (posts.length === 0) {
-    res.status(400);
-    throw new Error("No posts found.");
+    return res.status(200).json({ message: "No posts found." 
+    });
   }
-
   res.status(200).json(posts);
 });
 
